@@ -124,12 +124,11 @@ class LoadQueueRAW(implicit p: Parameters) extends XSModule
     maskModule.io.wen(w) := false.B
     freeList.io.doAllocate(w) := false.B
 
-    freeList.io.allocateReq(w) := true.B
+    freeList.io.allocateReq(w) := needEnqueue(w)
 
     //  Allocate ready
-    val offset = PopCount(needEnqueue.take(w))
-    val canAccept = freeList.io.canAllocate(offset)
-    val enqIndex = freeList.io.allocateSlot(offset)
+    val canAccept = freeList.io.canAllocate(w)
+    val enqIndex = freeList.io.allocateSlot(w)
     enq.ready := Mux(needEnqueue(w), canAccept, true.B)
 
     enqIndexVec(w) := enqIndex
